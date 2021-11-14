@@ -94,6 +94,7 @@ def transaksiBeli():
 
     
     btnBeli = WebDriverWait(driver,60).until(EC.presence_of_element_located((By.XPATH,"//*[@id='main']/div/div[2]/div[2]/div/div[1]/div[3]/div/div[5]/div/div/button[2]")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", btnBeli)
     btnBeli.click()
     print(Fore.YELLOW + "[",datetime.datetime.now(),"]" + Fore.RESET +" => " + Fore.GREEN + "Stuff already in cart")
     print(Fore.YELLOW + "[",datetime.datetime.now(),"]" + Fore.RESET +" => " + Fore.GREEN + "Continue Checkout Process")
@@ -101,14 +102,20 @@ def transaksiBeli():
 
 def checkOut(): 
     print(Fore.YELLOW + "[",datetime.datetime.now(),"]" + Fore.RESET +" => " + Fore.GREEN + "Waiting for checkout")
-    btnCheckout = WebDriverWait(driver,120).until(EC.presence_of_element_located((By.XPATH, "//*[@id='main']/div/div[2]/div[2]/div/div[3]/div[2]/div[7]/button[4]")))
+    btnCheckout = WebDriverWait(driver, 120).until(EC.element_to_be_clickable((By.CSS_SELECTOR,"button.shopee-button-solid.shopee-button-solid--primary")))
+    #btnCheckout = WebDriverWait(driver,120).until(EC.presence_of_element_located((By.XPATH, "//*[@id='main']/div/div[2]/div[2]/div/div[3]/div[2]/div[7]/button[4]")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", btnCheckout)
     btnCheckout.click()
     print(Fore.YELLOW + "[",datetime.datetime.now(),"]" + Fore.RESET +" => " + Fore.GREEN + "Continue to payment process")
     payment()
 
 def payment():
     print(Fore.YELLOW + "[",datetime.datetime.now(),"]" + Fore.RESET +" => " + Fore.GREEN + "Waiting payment page ready")
+    btnMethod = WebDriverWait(driver, 120).until(EC.presence_of_element_located((By.XPATH,"//button[text()='Indomaret / i.Saku']")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", btnMethod)
+    btnMethod.click()
     btnPayment = WebDriverWait(driver, 120).until(EC.presence_of_element_located((By.CSS_SELECTOR,"button.stardust-button.stardust-button--primary.stardust-button--large")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", btnPayment)
     btnPayment.click()
     print(Fore.YELLOW + "[",datetime.datetime.now(),"]" + Fore.RESET +" => " + Fore.GREEN + "Stuff ready to pay!")
     author()
@@ -121,14 +128,7 @@ def checkElementByClass(classname):
         return True
     except NoSuchElementException:
         return False
-
-def checkElementByXPath(XPath):
-    try: 
-        driver.find_element(By.XPATH, XPath)
-        return True
-    except NoSuchElementException:
-        return False
-
+        
 author()
 uriLink = input("Product link : " + Fore.GREEN)
 time = input(Fore.RESET + "Flash sale time start (yy-mm-dd hh:mm:ss) : " + Fore.RED)
@@ -139,7 +139,33 @@ if multiVar == "Y" or multiVar == "y":
 flashTime = datetime.datetime.strptime(time, "%y-%m-%d %H:%M:%S")
 sel = datetime.datetime.now() - flashTime
 print(Fore.RESET + "Sisa waktu flash sale : " + Fore.RED,sel,""+Fore.RESET)
-option = webdriver.ChromeOptions()
-option.add_argument('--start-maximized')
-driver = webdriver.Chrome('chromedriver.exe', options=option)
+user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36"
+options = webdriver.ChromeOptions()
+#options.headless = True
+options.add_argument(f'user-agent={user_agent}')
+#options.add_argument("--window-size=1920,1080")
+options.add_argument('--ignore-certificate-errors')
+options.add_argument('--allow-running-insecure-content')
+options.add_argument("--disable-extensions")
+#options.add_argument("--proxy-server='direct://'")
+#options.add_argument("--proxy-bypass-list=*")
+options.add_argument("--start-maximized")
+options.add_argument('--disable-gpu')
+options.add_argument('--disable-dev-shm-usage')
+options.add_argument('--no-sandbox')
+prefs = {'profile.default_content_setting_values': {'images': 2,
+                            'plugins': 2, 'popups': 2, 'geolocation': 2,
+                            'notifications': 2, 'auto_select_certificate': 2, 'fullscreen': 2,
+                            'mouselock': 2, 'mixed_script': 2, 'media_stream': 2,
+                            'media_stream_mic': 2, 'media_stream_camera': 2, 'protocol_handlers': 2,
+                            'ppapi_broker': 2, 'automatic_downloads': 2, 'midi_sysex': 2,
+                            'push_messaging': 2, 'ssl_cert_decisions': 2, 'metro_switch_to_desktop': 2,
+                            'protected_media_identifier': 2, 'app_banner': 2, 'site_engagement': 2,
+                            'durable_storage': 2}}
+options.add_experimental_option("prefs", prefs)
+
+driver = webdriver.Chrome(executable_path="chromedriver.exe", options=options)
+#option = webdriver.ChromeOptions()
+#option.add_argument('--start-maximized')
+#driver = webdriver.Chrome('chromedriver.exe', options=option)
 openBrowser()
